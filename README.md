@@ -35,7 +35,7 @@ The project has the following library dependencies:
 - OpenCV (version 4.8.1)
 - VTK (version 9.2.0)
 - Point Cloud Library (PCL, version 1.13.1 ) 
-- Qt (version 6.5.0)
+- Qt (version 5.15.11)
 - Eigen3 (version 3.4.0)
 
 Additionally, the project includes the following packages:

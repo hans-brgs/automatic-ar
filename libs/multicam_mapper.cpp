@@ -639,24 +639,6 @@ void MultiCamMapper::remove_distortions()
 
             cv::Mat cam_mat = mat_arrays.cam_mats[cam_id];
             cv::Mat dist_coeffs = mat_arrays.dist_coeffs[cam_id];
-            //debug TEST
-            if (points.empty())
-            {
-                std::cerr << "Error: points matrix is empty." << std::endl;
-                return; // ou handle l'erreur comme vous le souhaitez
-            }
-
-            if (cam_mat.empty())
-            {
-                std::cerr << "Error: cam_mat matrix is empty." << std::endl;
-                return;
-            }
-
-            if (dist_coeffs.empty())
-            {
-                std::cerr << "Error: dist_coeffs matrix is empty." << std::endl;
-                return;
-            }
 
             cv::undistortPoints(points, undistorted_points, cam_mat, dist_coeffs, cv::noArray(), cam_mat);
 

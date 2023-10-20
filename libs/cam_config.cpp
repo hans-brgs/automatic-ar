@@ -81,7 +81,6 @@ bool CamConfig::read_from_file(std::string path){
     else
         file["distortion_coefficients"]>>dist_coeffs;
 
-    cout << dist_coeffs << endl;
     return true;
 }
 
