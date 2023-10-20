@@ -19,15 +19,10 @@ add_definitions(-DAPP_SGLVIEWER_DSO_EXPORTS)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-if(DEFINED ENV{QT6_CMAKE_PATH})
-    set(CMAKE_PREFIX_PATH $ENV{QT6_CMAKE_PATH})
-endif()
-set(CMAKE_PREFIX_PATH "C:/Qt/6.5.0/msvc2019_64/lib/cmake")
-
-find_package(Qt6 COMPONENTS Widgets)
+find_package(Qt5 COMPONENTS Widgets)
 find_package(OpenCV REQUIRED)
 include_directories( ${OpenCV_INCLUDE_DIRS} )
-#message(STATUS "OpenCV found, version: ${OpenCV_VERSION} in dir ${OpenCV_INCLUDE_DIRS}")
+message(STATUS "QT found, version: ${Qt_VERSION} in dir ${OpenCV_INCLUDE_DIRS}")
 
 
 include(cmake/compilerOptions.cmake)

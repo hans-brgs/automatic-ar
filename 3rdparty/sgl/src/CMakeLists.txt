@@ -2,10 +2,10 @@ SET(LIBNAME sgl)
 set(sources  sgldisplay.cpp )
 set(headers  sgldisplay.h  sgl.h  sgl_exports.h   )
 
-find_package(Qt6 COMPONENTS Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
-# IF(Qt6Widgets_FOUND)
-# message(STATUS "QT FOUUUUND")
+# IF(Qt5Widgets_FOUND)
+# message(STATUS "QT FOUND")
 # set(CMAKE_AUTOMOC ON)
 # set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # set(sources_QT sgldisplay_qt.cpp sgldisplay_qt_internal.cpp)
@@ -27,7 +27,7 @@ SET(REQUIRED_LIBS ${REQUIRED_LIBS} -pthread)
 
 add_library(${LIBNAME}  ${sources} ${headers} ${sources_QT} ${headers_QT} ${headers_cv})
 
-# target_link_libraries(sgl PRIVATE Qt6::Widgets)
+# target_link_libraries(sgl PRIVATE Qt5::Widgets)
 
 set_target_properties(${LIBNAME} PROPERTIES          # create *nix style library versions + symbolic links
     DEFINE_SYMBOL ${LIBNAME}_DSO_EXPORTS
