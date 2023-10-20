@@ -1,16 +1,16 @@
 # automatic-ar
 
-> **automatic-ar** is a specialized computer vision project focused on the calibration of extrinsic parameters of multiple cameras. Leveraging a multi-camera video sequence, the system employs a unique 3D calibration rig composed of ARUCO markers on each face. Through this calibration, the project successfully determines the relative positions of the cameras, either in reference to a primary camera or in relation to the calibration rig itself. 
+**automatic-ar** is a specialized computer vision project focused on the calibration of extrinsic parameters of multiple cameras. Leveraging a multi-camera video sequence, the system employs a unique 3D calibration rig composed of ARUCO markers on each face. Through this calibration, the project successfully determines the relative positions of the cameras, either in reference to a primary camera or in relation to the calibration rig itself. 
 
 ## Table of Contents
 
-1. [Reference Implementation](https://chat.openai.com/c/d5c6e956-cf21-4968-90c5-585d1265675e#reference-implementation)
-2. [Prerequisites](https://chat.openai.com/c/d5c6e956-cf21-4968-90c5-585d1265675e#prerequisites)
-3. [Installing Dependencies using vcpkg](https://chat.openai.com/c/d5c6e956-cf21-4968-90c5-585d1265675e#installing-dependencies-using-vcpkg)
-4. [Configuring and Building the Project](https://chat.openai.com/c/d5c6e956-cf21-4968-90c5-585d1265675e#configuring-and-building-the-project)
-5. [Sample data & Usage](https://chat.openai.com/c/d5c6e956-cf21-4968-90c5-585d1265675e#sample-data--usage)
-6. [Visualization](https://chat.openai.com/c/d5c6e956-cf21-4968-90c5-585d1265675e#visualization)
-7. [Dataset format](https://chat.openai.com/c/d5c6e956-cf21-4968-90c5-585d1265675e#dataset-format)
+1. [Reference Implementation](#reference-implementation)
+2. [Prerequisites](#prerequisites)
+3. [Installing Dependencies using vcpkg](#installing-dependencies-using-vcpkg)
+4. [Configuring and Building the Project](#configuring-and-building-the-project)
+5. [Sample data & Usage](#sample-data--usage)
+6. [Visualization](#visualization)
+7. [Dataset format](#dataset-format)
 
 ## Reference Implementation:
 
