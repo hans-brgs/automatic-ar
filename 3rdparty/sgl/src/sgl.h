@@ -41,7 +41,6 @@ or implied, of Rafael Muñoz Salinas.
 #include <iostream>
 #include <vector>
 #include <limits>
-#include <functional>
 //Simplest graphics library
 //Version 1.0.2
 //Author. Rafael Muñoz Salinas (rmsalinas@uco.es) 2017

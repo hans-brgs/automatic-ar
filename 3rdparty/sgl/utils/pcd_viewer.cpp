@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <sgldisplay.h>
 #include <memory>
 #include <chrono>

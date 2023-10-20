@@ -19,3 +19,4 @@ target_link_libraries(initializer aruco_serdes)
 add_library(aruco_serdes aruco_serdes.cpp)
 
 add_library(pointcloud_drawer pointcloud_drawer.cpp)
+target_link_libraries(pointcloud_drawer ${VTK_LIBRARIES})

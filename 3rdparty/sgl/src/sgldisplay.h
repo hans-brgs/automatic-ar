@@ -4,6 +4,7 @@
 #define _SglDisplay_H
 
 #include <memory>
+#include <functional>
 #include "sgl_exports.h"
 #include "sgl.h"
 namespace sgl{

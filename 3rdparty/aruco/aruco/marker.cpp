@@ -1,29 +1,17 @@
 /**
-Copyright 2017 Rafael Muñoz Salinas. All rights reserved.
+Copyright 2020 Rafael Muñoz Salinas. All rights reserved.
 
-Redistribution and use in source and binary forms, with or without modification, are
-permitted provided that the following conditions are met:
+  This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation version 3 of the License.
 
-   1. Redistributions of source code must retain the above copyright notice, this list of
-      conditions and the following disclaimer.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-   2. Redistributions in binary form must reproduce the above copyright notice, this list
-      of conditions and the following disclaimer in the documentation and/or other materials
-      provided with the distribution.
-
-THIS SOFTWARE IS PROVIDED BY Rafael Muñoz Salinas ''AS IS'' AND ANY EXPRESS OR IMPLIED
-WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL Rafael Muñoz Salinas OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-The views and conclusions contained in the software and documentation are those of the
-authors and should not be interpreted as representing official policies, either expressed
-or implied, of Rafael Muñoz Salinas.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "marker.h"
@@ -262,23 +250,25 @@ namespace aruco
     void Marker::draw(cv::Mat& in,  cv::Scalar color, int lineWidth, bool writeId, bool writeInfo) const
     {
 		
-		auto _to_string=[](int i){
-			std::stringstream str;str<<i;return str.str();
-			};
-		
+        auto _to_string=[](int i){
+            std::stringstream str;str<<i;return str.str();
+            };
+
         if (size() != 4)
             return;
+        float flineWidth=lineWidth;
         if (lineWidth == -1)  // auto
-            lineWidth = static_cast<int>(std::max(1.f, float(in.cols) / 1000.f));
-        cv::line(in, (*this)[0], (*this)[1], color, lineWidth);
+            flineWidth = std::max(1.f, std::min(5.f, float(in.cols) / 500.f));
+        lineWidth =round(flineWidth );
+         cv::line(in, (*this)[0], (*this)[1], color, lineWidth);
         cv::line(in, (*this)[1], (*this)[2], color, lineWidth);
         cv::line(in, (*this)[2], (*this)[3], color, lineWidth);
         cv::line(in, (*this)[3], (*this)[0], color, lineWidth);
 
         auto p2 =  cv::Point2f(2.f * static_cast<float>(lineWidth), 2.f * static_cast<float>(lineWidth));
-        cv::rectangle(in, (*this)[0] - p2, (*this)[0] + p2, cv::Scalar(0, 0, 255, 255), -1, CV_AA);
-        cv::rectangle(in, (*this)[1] - p2, (*this)[1] + p2, cv::Scalar(0, 255, 0, 255), lineWidth, CV_AA);
-        cv::rectangle(in, (*this)[2] - p2, (*this)[2] + p2, cv::Scalar(255, 0, 0, 255), lineWidth, CV_AA);
+        cv::rectangle(in, (*this)[0] - p2, (*this)[0] + p2, cv::Scalar(0, 0, 255, 255), -1);
+        cv::rectangle(in, (*this)[1] - p2, (*this)[1] + p2, cv::Scalar(0, 255, 0, 255), lineWidth);
+        cv::rectangle(in, (*this)[2] - p2, (*this)[2] + p2, cv::Scalar(255, 0, 0, 255), lineWidth);
 
 
 
@@ -296,8 +286,9 @@ namespace aruco
             std::string str;
             if(writeInfo) str+= dict_info +":";
             if(writeId)str+=_to_string(id);
-            cv::putText(in,str, cent,  cv::FONT_HERSHEY_SIMPLEX, std::max(0.5f, float(lineWidth) * 0.3f),
-                        cv::Scalar(255 - color[0], 255 - color[1], 255 - color[2], 255), std::max(lineWidth, 2));
+            float fsize=  std::min(3.0f, flineWidth * 0.75f);
+            cv::putText(in,str, cent-cv::Point(10*flineWidth,0),  cv::FONT_HERSHEY_SIMPLEX,fsize,
+                       cv::Scalar(255,255,255)-color, lineWidth,cv::LINE_AA);
         }
     }
 
@@ -472,5 +463,24 @@ namespace aruco
         str.read((char*)&contourPoints[0], contourPoints.size()*sizeof(contourPoints[0]));
     }
 
+    cv::Mat Marker::getTransformMatrix()const{
+
+        cv::Mat T=cv::Mat::eye(4,4,CV_32F);
+        cv::Mat rot=T.rowRange(0,3).colRange(0,3);
+        cv::Rodrigues(Rvec,rot);
+        for(int i=0;i<3;i++)
+            T.at<float>(i,3)=Tvec.ptr<float>(0)[i];
+        return T;
+    }
+
+    float Marker::getRadius()const{
+
+        auto center=getCenter();
+
+        float maxDist=0;
+        for(auto p:*this)
+            maxDist=std::max(maxDist, float(cv::norm(p-center)) );
+        return maxDist;
+    }
 
 }

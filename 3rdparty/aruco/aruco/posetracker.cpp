@@ -1,38 +1,23 @@
 /**
-Copyright 2017 Rafael Muñoz Salinas. All rights reserved.
+Copyright 2020 Rafael Muñoz Salinas. All rights reserved.
 
-Redistribution and use in source and binary forms, with or without modification, are
-permitted provided that the following conditions are met:
+  This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation version 3 of the License.
 
-   1. Redistributions of source code must retain the above copyright notice, this list of
-      conditions and the following disclaimer.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-   2. Redistributions in binary form must reproduce the above copyright notice, this list
-      of conditions and the following disclaimer in the documentation and/or other materials
-      provided with the distribution.
-
-THIS SOFTWARE IS PROVIDED BY Rafael Muñoz Salinas ''AS IS'' AND ANY EXPRESS OR IMPLIED
-WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL Rafael Muñoz Salinas OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-The views and conclusions contained in the software and documentation are those of the
-authors and should not be interpreted as representing official policies, either expressed
-or implied, of Rafael Muñoz Salinas.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "posetracker.h"
 #include "ippe.h"
 #include <set>
-#if  CV_MAJOR_VERSION < 3
-#include "levmarq.h"
-#else
-#endif
+#include "levmarq.h" //solve pnp of opencv is not trustworthy. Create our own
 #include <opencv2/calib3d/calib3d.hpp>
 namespace aruco
 {
@@ -264,7 +249,6 @@ inline double hubberMono(double e){
 inline double getHubberMonoWeight(double SqErr,double Information){
      return sqrt(hubberMono(Information * SqErr)/ SqErr);
 }
-#if  CV_MAJOR_VERSION < 3
 
     template <typename T>
     double __aruco_solve_pnp(const std::vector<cv::Point3f>& p3d, const std::vector<cv::Point2f>& p2d,
@@ -332,20 +316,22 @@ inline double getHubberMonoWeight(double SqErr,double Information){
         fromSol(sol, r_io, t_io);
         return err;
     }
-#endif
-    double __aruco_solve_pnp(const std::vector<cv::Point3f>& p3d, const std::vector<cv::Point2f>& p2d,
+     double __aruco_solve_pnp(const std::vector<cv::Point3f>& p3d, const std::vector<cv::Point2f>& p2d,
                              const cv::Mat& cam_matrix, const cv::Mat& dist, cv::Mat& r_io, cv::Mat& t_io)
     {
-        #if  CV_MAJOR_VERSION >= 3
+//        #if  CV_MAJOR_VERSION >= 3
 
-        return cv::solvePnP(p3d,p2d,cam_matrix,dist,r_io,t_io);
-#else
-#ifdef DOUBLE_PRECISION_PNP
-        return __aruco_solve_pnp<double>(p3d, p2d, cam_matrix, dist, r_io, t_io);
-#else
+//        double d=cv::solvePnP(p3d,p2d,cam_matrix,dist,r_io,t_io);
+//        if(r_io.type()==CV_64F) r_io.convertTo(r_io,CV_32F);
+//        if(t_io.type()==CV_64F) t_io.convertTo(t_io,CV_32F);
+
+//#else
+//#ifdef DOUBLE_PRECISION_PNP
+//        return __aruco_solve_pnp<double>(p3d, p2d, cam_matrix, dist, r_io, t_io);
+//#else
         return __aruco_solve_pnp<float>(p3d, p2d, cam_matrix, dist, r_io, t_io);
-#endif
-#endif
+//#endif
+//#endif
     }
 
     bool MarkerPoseTracker::estimatePose(Marker& m, const CameraParameters& _cam_params, float _msize,
@@ -357,11 +343,6 @@ inline double getHubberMonoWeight(double SqErr,double Information){
             auto solutions =  solvePnP_(Marker::get3DPoints(_msize), m, _cam_params.CameraMatrix, _cam_params.Distorsion);
             double errorRatio = solutions[1].second / solutions[0].second;
             if (errorRatio < minerrorRatio)
-                return false;  // is te error ratio big enough
-//            cv::solvePnP(Marker::get3DPoints(_msize), m, _cam_params.CameraMatrix, _cam_params.Distorsion, rv, tv);
-            //__aruco_solve_pnp(Marker::get3DPoints(_msize), m, _cam_params.CameraMatrix, _cam_params.Distorsion, _rvec,  _tvec);
-//            rv.convertTo(_rvec, CV_32F);
-//            tv.convertTo(_tvec, CV_32F);
             aruco_private::impl__aruco_getRTfromMatrix44(solutions[0].first, _rvec, _tvec);
         }
         else
@@ -528,6 +509,7 @@ inline double getHubberMonoWeight(double SqErr,double Information){
             }
 
             //refine
+
             __aruco_solve_pnp(p3d, p2d, _cam_params.CameraMatrix, _cam_params.Distorsion, _rvec, _tvec);
 
             //check distance and rotation difference

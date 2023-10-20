@@ -1,31 +1,18 @@
 /**
-Copyright 2017 Rafael Muñoz Salinas. All rights reserved.
+Copyright 2020 Rafael Muñoz Salinas. All rights reserved.
 
-Redistribution and use in source and binary forms, with or without modification, are
-permitted provided that the following conditions are met:
+  This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation version 3 of the License.
 
-   1. Redistributions of source code must retain the above copyright notice, this list of
-      conditions and the following disclaimer.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-   2. Redistributions in binary form must reproduce the above copyright notice, this list
-      of conditions and the following disclaimer in the documentation and/or other materials
-      provided with the distribution.
-
-THIS SOFTWARE IS PROVIDED BY Rafael Muñoz Salinas ''AS IS'' AND ANY EXPRESS OR IMPLIED
-WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL Rafael Muñoz Salinas OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-The views and conclusions contained in the software and documentation are those of the
-authors and should not be interpreted as representing official policies, either expressed
-or implied, of Rafael Muñoz Salinas.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-
 #include "dictionary.h"
 #include <exception>
 #include <stdint.h>
@@ -251,7 +238,15 @@ fromVector(codes,d._code_id);
  * @param id
  * @return
  */
-cv::Mat Dictionary::getMarkerImage_id(int id,int bit_size,bool addWaterMark,bool enclosed_corners,bool externalWhiteBorder)
+//cv::Mat Dictionary::getMarkerMatrix_id(int id){
+//    const int nBitsSquared = static_cast<int>(std::sqrt(nbits()));
+//    const int A=bit_size*(2+nBitsSquared);
+
+//    cv::Mat img=cv::Mat::zeros(A,A,CV_8UC1);
+//}
+
+
+cv::Mat Dictionary::getMarkerImage_id(int id,int bit_size,bool addWaterMark,bool enclosed_corners,bool externalWhiteBorder,bool centralCircle)
 {
     const int nBitsSquared = static_cast<int>(std::sqrt(nbits()));
     const int A=bit_size*(2+nBitsSquared);
@@ -288,7 +283,7 @@ cv::Mat Dictionary::getMarkerImage_id(int id,int bit_size,bool addWaterMark,bool
             sprintf(idcad, "#%d", id);
             float ax = static_cast<float>(A) / 100.f;
             int linew = 1 + (img.rows / 500);
-            cv::putText(img, idcad, cv::Point(0, img.rows - img.rows / 40), cv::FONT_HERSHEY_COMPLEX, ax * 0.15f, cv::Scalar::all(30), linew,CV_AA);
+            cv::putText(img, idcad, cv::Point(0, img.rows - img.rows / 40), cv::FONT_HERSHEY_COMPLEX, ax * 0.15f, cv::Scalar::all(30), linew);
 
     }
 
@@ -318,6 +313,25 @@ cv::Mat Dictionary::getMarkerImage_id(int id,int bit_size,bool addWaterMark,bool
         cv::Mat center=biggerImage(cv::Range(borderSize,borderSize+img.rows),cv::Range(borderSize,borderSize+img.cols));
         img.copyTo(center);
         img=biggerImage;
+    }
+
+    if( centralCircle ){
+
+        //at the image center, draw a circle to mark the center
+        cv::Point2f center(img.cols/2,img.rows/2);
+        cv::Mat mask(img.size(),CV_8UC1);
+        mask.setTo(cv::Scalar::all(0));
+        cv::circle(mask,center,sqrt(bit_size),cv::Scalar::all(255),-1);
+        //now, invert the color in the image
+        for(int r=0;r<img.rows;r++){
+            uchar *imgptr=img.ptr<uchar>(r);
+            uchar *maskptr=mask.ptr<uchar>(r);
+            for(int c=0;c<img.cols;c++){
+                if(maskptr[c])
+                    imgptr[c]=255-imgptr[c];
+            }
+        }
+
     }
     return img;
 }
@@ -371,7 +385,7 @@ bool Dictionary::isPredefinedDictinaryString(string str)  {
 }
 
 vector<std::string> Dictionary::getDicTypes() {
-return {  "ARUCO_MIP_36h12", "ARUCO","ARUCO_MIP_16h3","ARUCO_MIP_25h7", "ARTOOLKITPLUS","ARTOOLKITPLUSBCH","TAG16h5","TAG25h7","TAG25h9"
+return {   "ARUCO","ARUCO_MIP_16h3","ARUCO_MIP_25h7","ARUCO_MIP_36h12", "ARTOOLKITPLUS","ARTOOLKITPLUSBCH","TAG16h5","TAG25h7","TAG25h9"
     ,"TAG36h11","TAG36h10","CHILITAGS","ALL_DICTS"};
 
 }

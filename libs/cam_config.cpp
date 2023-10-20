@@ -50,6 +50,13 @@ const cv::Size& CamConfig::getImageSize() const{
 }
 
 bool CamConfig::read_from_file(std::string path){
+
+    if (FILE* file_test = fopen(path.c_str(), "r")) {
+        fclose(file_test);
+    } else {
+        return false; // Sortie anticipée si le fichier n'existe pas
+    }
+
     cv::FileStorage file(path,cv::FileStorage::READ);
     if(!file.isOpened())
         return false;
@@ -74,11 +81,12 @@ bool CamConfig::read_from_file(std::string path){
     else
         file["distortion_coefficients"]>>dist_coeffs;
 
+    cout << dist_coeffs << endl;
     return true;
 }
 
 std::vector<CamConfig> CamConfig::read_cam_configs(std::string folder_path){
-    auto dirs_list=get_dirs_list(folder_path);
+    auto dirs_list=get_dirs_list(folder_path);  
     std::vector<CamConfig> result;
 
     std::vector<std::string> possible_extensions={"xml","yml","yaml"};
